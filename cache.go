@@ -1,5 +1,9 @@
 package cache 
 
+import (
+	"errors"
+)
+
 type Cache struct {
 	storage map[string]interface{}
 }
@@ -10,13 +14,20 @@ func New() Cache {
 	}
 }
 
-func (c Cache) Set(key string, value interface{}) {
-	c.storage[key] = value
-}
-
 func (c Cache) Get(key string) interface{} {
 	value := c.storage[key]
 	return value
+}
+
+func (c Cache) Set(key string, value interface{}) error {
+	existsValue := c.Get(key)
+	if existsValue == nil {
+		c.storage[key] = value
+		return nil
+	} else {
+		return errors.New("value for this key already exists")
+	}
+	
 }
 
 func (c Cache) Delete(key string) {
