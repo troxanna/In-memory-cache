@@ -20,7 +20,7 @@ func (c *Cache) Get(key string) interface{} {
 }
 
 func (c *Cache) Set(key string, value interface{}) (bool, error) {
-	existsValue := c.Get(key)
+	existsValue := c.storage[key]
 	if existsValue != nil {
 		return false, errors.New("value for this key already exists")
 	}
