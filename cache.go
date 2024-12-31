@@ -19,13 +19,13 @@ func (c Cache) Get(key string) interface{} {
 	return value
 }
 
-func (c Cache) Set(key string, value interface{}) error {
+func (c Cache) Set(key string, value interface{}) (bool, error) {
 	existsValue := c.Get(key)
 	if existsValue == nil {
 		c.storage[key] = value
-		return nil
+		return true, nil
 	} else {
-		return errors.New("value for this key already exists")
+		return false, errors.New("value for this key already exists")
 	}
 	
 }
