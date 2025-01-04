@@ -14,7 +14,7 @@ type ItemCache struct {
 
 type Cache struct {
 	storage map[string]ItemCache
-	mu *sync.RWMutex
+	mu sync.RWMutex
 }
 
 func New() *Cache {
