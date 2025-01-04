@@ -4,6 +4,7 @@ import (
 	"errors"
 	"sync"
 	"time"
+	"context"
 )
 
 type ItemCache struct {
@@ -15,11 +16,11 @@ type Cache struct {
 	storage sync.Map
 }
 
-func New() *Cache {
+func New(ctx context.Context) *Cache {
 	storage := &Cache{
 		storage: sync.Map{},
 	}
-	go storage.backgroundCacheCleaner()
+	go storage.backgroundCacheCleaner(ctx)
 
 	return storage
 }
@@ -49,23 +50,28 @@ func (c *Cache) Delete(key string) {
 	c.storage.Delete(key)
 }
 
-func (c *Cache) backgroundCacheCleaner() {
+func (c *Cache) backgroundCacheCleaner(ctx context.Context) {
 	timer := time.NewTicker(time.Second * 1)
 	defer timer.Stop()
 
 	for {
-		<- timer.C
-		c.storage.Range(func(key, v interface{}) bool {
-			value, ok := v.(ItemCache)
-			if !ok {
-				return false
-			}
-			if time.Now().After(value.expiredAt) {
-				c.storage.Delete(key)
+		select {
+		case <- timer.C:
+			c.storage.Range(func(key, v interface{}) bool {
+				value, ok := v.(ItemCache)
+				if !ok {
+					return false
+				}
+				if time.Now().After(value.expiredAt) {
+					c.storage.Delete(key)
+					return true
+				}
 				return true
-			}
-			return true
-		})
+			})	
+		case <-ctx.Done():
+			timer.Stop()
+			return
+		}
 	}
 
 }
