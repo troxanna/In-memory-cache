@@ -6,8 +6,11 @@ In-memory cache golang library for storing data
 package main
 
 import (
+	"context"
 	"fmt"
-	"github.com/troxanna/In-memory-cache"
+	"time"
+
+	cache "github.com/troxanna/In-memory-cache"
 )
 
 func main() {
