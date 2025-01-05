@@ -11,16 +11,33 @@ import (
 )
 
 func main() {
-	cache := cache.New()
+	ctx, cancel := context.WithCancel(context.Background())
 
-	cache.Set("userId", 42)
-	userId := cache.Get("userId")
+	cache := cache.New(ctx)
 
-	fmt.Println(userId) // Вывод: 42
+	_, err := cache.Set("userId", 22, time.Second * 2)
+	if err != nil {
+		fmt.Println(err)
+	}
+	time.Sleep(time.Second * 3)
+	userId, err := cache.Get("userId")
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(userId)
+	}
 
-	cache.Delete("userId")
-	userId = cache.Get("userId")
-
-	fmt.Println(userId) // Вывод: <nil>
+	_, err = cache.Set("userId", 24, time.Second * 2)
+	if err != nil {
+		fmt.Println(err)
+	}
+	time.Sleep(time.Second)
+	userId, err = cache.Get("userId")
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(userId)
+	}
+	cancel()
 }
 ```
